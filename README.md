@@ -32,7 +32,7 @@
 
 ## 先看效果
 
-打开 GitHub Pages 地址即可（见仓库右侧 **About → 网址**，或本仓库的 `https://<你的用户名>.github.io/<仓库名>/`）。
+直接打开：**https://zhoujinq.github.io/hajimi-ledger-demo/**
 
 打开后你会看到：
 
