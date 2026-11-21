@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>哈基米投资记账 · 演示版</title>
+<meta name="description" content="一个自用的投资记账与持仓台账工具。演示数据全部虚构。" />
+<style>
+:root{
+  --bg:#f6f7f9; --card:#ffffff; --ink:#1f2329; --sub:#6b7280; --line:#e5e7eb;
+  --red:#d93025; --green:#0f9d58; --blue:#1a73e8; --amber:#b45309; --chip:#fef3c7;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:14px/1.6 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;padding-bottom:60px}
+.wrap{max-width:1080px;margin:0 auto;padding:20px 16px}
+h1{font-size:20px;margin:0 0 4px}
+h2{font-size:15px;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+.sub{color:var(--sub);font-size:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px}
+.grid{display:grid;gap:12px}
+.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:760px){.g4{grid-template-columns:repeat(2,1fr)}}
+.kpi{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.kpi .k{font-size:12px;color:var(--sub)}
+.kpi .v{font-size:20px;font-weight:600;margin-top:2px;font-variant-numeric:tabular-nums}
+.kpi .n{font-size:11px;color:var(--sub);margin-top:2px}
+.banner{background:#fff8e6;border:1px solid #f5d98b;color:#7a5300;border-radius:10px;
+  padding:10px 14px;margin-bottom:16px;font-size:13px}
+.banner b{color:#7a5300}
+.tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:999px;
+  background:#eef2ff;color:#4338ca;font-weight:500}
+.tag.ok{background:#e7f6ec;color:#0f7a43}
+.tag.warn{background:#fef3c7;color:#92400e}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{font-size:12px;color:var(--sub);font-weight:500;text-align:right;padding:6px 8px;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+td{padding:8px;border-bottom:1px solid #f0f1f3;font-size:13px}
+tr:last-child td{border-bottom:none}
+.num{text-align:right}
+.nm .cd{color:var(--sub);font-size:11px;margin-left:6px}
+tr.tot td{font-weight:600;border-top:1px solid var(--line);background:#fafbfc}
+.up{color:var(--red)} .down{color:var(--green)}
+.bar{height:6px;background:#eef0f3;border-radius:4px;overflow:hidden;min-width:90px}
+.bar i{display:block;height:100%;border-radius:4px}
+.mut{color:var(--sub)}
+.chk{display:flex;flex-wrap:wrap;gap:8px}
+.chk span{font-size:12px;color:#0f7a43;background:#e7f6ec;border-radius:999px;padding:3px 10px}
+footer{color:var(--sub);font-size:12px;text-align:center;padding:12px 0 0}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>哈基米投资记账 <span class="tag" id="verTag">演示版</span></h1>
+  <div class="sub" id="subline">加载中…</div>
+
+  <div class="banner">
+    <b>这是一个演示页面，数据全部虚构。</b>
+    总资产、持仓、成本、股数均由脚本伪随机生成，与任何真实账户无关；标的名称仅用于示意。
+    仓库里的代码是真实的，数字不是。
+  </div>
+
+  <div class="card">
+    <div class="grid g4">
+      <div class="kpi"><div class="k">总资产</div><div class="v" id="kTotal">—</div><div class="n" id="kTotalSub">—</div></div>
+      <div class="kpi"><div class="k">净资产</div><div class="v" id="kNet">—</div><div class="n" id="kNetSub">—</div></div>
+      <div class="kpi"><div class="k">现金</div><div class="v" id="kCash">—</div><div class="n" id="kCashSub">—</div></div>
+      <div class="kpi"><div class="k">现金水位</div><div class="v" id="kCashPct">—</div><div class="n">底线 20%</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>资产配置 <span class="tag" id="quoteTag">快照</span></h2>
+    <table>
+      <thead><tr><th>类别</th><th class="num">金额</th><th class="num">占比</th><th class="num">目标</th><th style="width:130px">占比</th></tr></thead>
+      <tbody id="allocBody"><tr><td colspan="5" class="mut">计算中…</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>港股持仓 <span class="tag" id="hkTag">5 只</span></h2>
+    <table>
+      <thead><tr><th>标的</th><th class="num">股数</th><th class="num">成本</th><th class="num">现价</th><th class="num">市值</th><th class="num">占比</th></tr></thead>
+      <tbody id="hkBody"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>美股持仓 <span class="tag" id="usTag">5 只</span></h2>
+    <table>
+      <thead><tr><th>标的</th><th class="num">股数</th><th class="num">成本</th><th class="num">现价</th><th class="num">市值</th><th class="num">占比</th></tr></thead>
+      <tbody id="usBody"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>A股持仓 <span class="tag" id="cnTag">5 只</span></h2>
+    <table>
+      <thead><tr><th>标的</th><th class="num">股数</th><th class="num">成本</th><th class="num">现价</th><th class="num">市值</th><th class="num">占比</th></tr></thead>
+      <tbody id="cnBody"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>指数与黄金</h2>
+    <table>
+      <thead><tr><th>标的</th><th class="num">份额</th><th class="num">成本</th><th class="num">现价</th><th class="num">市值</th><th class="num">占比</th></tr></thead>
+      <tbody id="idxBody"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>自动校验</h2>
+    <div class="chk" id="chkBox"></div>
+    <div class="sub" style="margin-top:10px">
+      真实版本会在每次记账后跑勾稽：台账市值必须与券商账户市值对上，对不上说明股数错、漏记交易或抄错市值。
+      演示版这里只展示校验结果的样子。
+    </div>
+  </div>
+
+  <footer>
+    <div>数据为演示用途虚构生成 · 最后更新 <span id="asof">—</span></div>
+    <div style="margin-top:6px">项目源码与使用说明见 <a href="https://github.com/" id="repoLink" target="_blank" rel="noopener">GitHub 仓库</a></div>
+  </footer>
+</div>
+
+<script src="data.js"></script>
+<script>
+(function(){
+  var D = window.DEMO;
+  var live = {};              // code -> 实时价
+  var liveOk = false, liveAt = "";
+
+  function fmt(n, cur){
+    if(n==null || isNaN(n)) return "—";
+    var s = Math.abs(n) >= 10000
+      ? Math.round(n).toLocaleString("zh-CN")
+      : n.toLocaleString("zh-CN",{maximumFractionDigits:2});
+    return (cur==="USD"?"$":cur==="HKD"?"HK$":"¥") + s;
+  }
+  function pct(n){ return (n*100).toFixed(1) + "%"; }
+
+  function priceOf(p){ return live[p.code] || p.price; }
+  function mvOf(p, fx){
+    var raw = priceOf(p) * p.shares;
+    if(p.cur === "HKD") return raw * fx.cnyPerHkd;
+    if(p.cur === "USD") return raw * fx.cnyPerUsd;
+    return raw;
+  }
+  function nativeOf(p){ return priceOf(p) * p.shares; }
+
+  function render(){
+    var fx = D.fx;
+    var groups = [
+      { key:"hk", body:"hkBody", tag:"hkTag", cur:"HKD" },
+      { key:"us", body:"usBody", tag:"usTag", cur:"USD" },
+      { key:"cn", body:"cnBody", tag:"cnTag", cur:"CNY" }
+    ];
+    var bucketMv = {};
+
+    groups.forEach(function(g){
+      var list = D.positions[g.key];
+      var sum = list.reduce(function(a,p){ return a + mvOf(p, fx); }, 0);
+      bucketMv[g.key] = sum;
+      document.getElementById(g.body).innerHTML = list.map(function(p){
+        var px = priceOf(p), mv = mvOf(p, fx), share = sum ? mv/sum : 0;
+        var cls = px >= p.cost ? "up" : "down";
+        return "<tr><td class='nm'>" + p.name + "<span class='cd'>" + p.symbol + "</span></td>" +
+          "<td class='num'>" + p.shares.toLocaleString("zh-CN") + "</td>" +
+          "<td class='num mut'>" + px0(p.cost, g.cur) + "</td>" +
+          "<td class='num " + cls + "'>" + px0(px, g.cur) + "</td>" +
+          "<td class='num'>" + fmt(mv, "CNY").replace("¥","") + "</td>" +
+          "<td class='num mut'>" + pct(share) + "</td></tr>";
+      }).join("") +
+      "<tr class='tot'><td>合计</td><td></td><td></td><td></td><td class='num'>" + fmt(sum,"CNY").replace("¥","") + "</td><td class='num mut'>100.0%</td></tr>";
+      document.getElementById(g.tag).textContent = list.length + " 只";
+    });
+
+    var extras = [].concat(D.positions.usindex, D.positions.gold);
+    var usiSum = 0, goldSum = 0;
+    document.getElementById("idxBody").innerHTML = extras.map(function(p){
+      var px = priceOf(p), mv = mvOf(p, fx);
+      if(D.positions.usindex.indexOf(p) >= 0) usiSum += mv; else goldSum += mv;
+      var all = mvOf(D.positions.usindex[0],fx) + mvOf(D.positions.gold[0],fx);
+      var cls = px >= p.cost ? "up" : "down";
+      return "<tr><td class='nm'>" + p.name + "<span class='cd'>" + p.symbol + "</span></td>" +
+        "<td class='num'>" + p.shares.toLocaleString("zh-CN") + "</td>" +
+        "<td class='num mut'>" + (+p.cost).toFixed(3) + "</td>" +
+        "<td class='num " + cls + "'>" + (+px).toFixed(3) + "</td>" +
+        "<td class='num'>" + fmt(mv,"CNY").replace("¥","") + "</td>" +
+        "<td class='num mut'>" + pct(all ? mv/all : 0) + "</td></tr>";
+    }).join("");
+    bucketMv.usindex = usiSum; bucketMv.gold = goldSum;
+
+    var assets = Object.keys(bucketMv).reduce(function(a,k){ return a + bucketMv[k]; }, 0);
+    var total = assets + D.cash;
+    var cashPct = D.cash / total;
+
+    document.getElementById("kTotal").textContent = fmt(total, "CNY");
+    document.getElementById("kTotalSub").textContent = "资产 " + fmt(assets,"CNY") + " ＋ 现金 " + fmt(D.cash,"CNY");
+    document.getElementById("kNet").textContent = fmt(total - D.liabilities, "CNY");
+    document.getElementById("kNetSub").textContent = "负债 " + fmt(D.liabilities,"CNY");
+    document.getElementById("kCash").textContent = fmt(D.cash, "CNY");
+    document.getElementById("kCashSub").textContent = "含人民币 / 港币 / 美元";
+    document.getElementById("kCashPct").textContent = pct(cashPct);
+
+    var rows = D.buckets.map(function(b){
+      var mv = b.key === "cash" ? D.cash : (bucketMv[b.key] || 0);
+      var share = mv / total;
+      var tgt = b.target ? (b.target[0] + "–" + b.target[1] + "%") : "剩余";
+      return { b: b, mv: mv, share: share, tgt: tgt };
+    });
+    var maxShare = Math.max.apply(null, rows.map(function(r){ return r.share; }));
+    document.getElementById("allocBody").innerHTML = rows.map(function(r){
+      var w = maxShare ? (r.share / maxShare * 100) : 0;
+      return "<tr><td>" + r.b.name + "</td>" +
+        "<td class='num'>" + fmt(r.mv,"CNY").replace("¥","") + "</td>" +
+        "<td class='num'>" + pct(r.share) + "</td>" +
+        "<td class='num mut'>" + r.tgt + "</td>" +
+        "<td><div class='bar'><i style='width:" + w.toFixed(1) + "%;background:" + r.b.color + "'></i></div></td></tr>";
+    }).join("");
+
+    document.getElementById("chkBox").innerHTML = D.checks.map(function(c){
+      return "<span>" + c.label + " · " + c.result + "</span>";
+    }).join("");
+    document.getElementById("asof").textContent = liveOk ? (D.as_of + "（价格已刷新 " + liveAt + "）") : D.as_of + "（快照）";
+    document.getElementById("quoteTag").textContent = liveOk ? "实时" : "快照";
+    document.getElementById("quoteTag").className = "tag " + (liveOk ? "ok" : "warn");
+  }
+
+  function px0(v, cur){
+    var d = cur === "USD" ? 2 : (v < 10 ? 3 : 2);
+    return (v==null||isNaN(v)) ? "—" : v.toLocaleString("zh-CN",{minimumFractionDigits:d,maximumFractionDigits:d});
+  }
+
+  function loadQuotes(){
+    var codes = [];
+    Object.keys(D.positions).forEach(function(k){
+      D.positions[k].forEach(function(p){ codes.push(p.code); });
+    });
+    var s = document.createElement("script");
+    s.charset = "gbk";
+    s.src = "https://qt.gtimg.cn/q=" + codes.join(",");
+    s.onload = function(){
+      var n = 0;
+      codes.forEach(function(c){
+        var raw = window["v_" + c];
+        if(!raw) return;
+        var f = String(raw).split("~");
+        var px = parseFloat(f[3]);
+        if(px > 0){ live[c] = px; n++; }
+      });
+      liveOk = n > 0;
+      liveAt = new Date().toLocaleTimeString("zh-CN",{hour12:false});
+      render();
+      s.remove();
+    };
+    s.onerror = function(){ render(); s.remove(); };
+    document.head.appendChild(s);
+  }
+
+  render();
+  loadQuotes();
+})();
+</script>
+</body>
+</html>
