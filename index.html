@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>哈基米投资记账</title>
+<title>个人理财投资助手</title>
 <style>
 :root{
   --bg:#f6f7f9; --card:#ffffff; --ink:#1f2329; --sub:#6b7280; --line:#e5e7eb;
@@ -245,7 +245,7 @@ input.inp-overridden{background:#fff7ed;border-color:#fdba74;color:var(--ink)}
 <div class="wrap">
   <div class="hero">
     <div style="flex:1 1 auto">
-      <h1>哈基米投资记账 <span id="h1ver" style="font-size:13px;font-weight:600;opacity:.85;vertical-align:middle"></span><span id="h1time" style="font-size:12px;font-weight:500;opacity:.7;vertical-align:middle;margin-left:8px"></span></h1>
+      <h1>个人理财投资助手 <span id="h1ver" style="font-size:13px;font-weight:600;opacity:.85;vertical-align:middle"></span><span id="h1time" style="font-size:12px;font-weight:500;opacity:.7;vertical-align:middle;margin-left:8px"></span></h1>
       <div class="sub">基准快照：腾讯文档《哈基米-投资复盘》资产负债表最新块（<span id="snapDate"></span>） · <a href="https://docs.qq.com/sheet/DQnJQRGtxS0JPd2F0?tab=000002" target="_blank" style="color:#fff">打开源表</a></div>
       <div class="chiprow">
         <span class="chip" id="verChip">…</span><span class="chip">📈 行情自动</span><span class="chip">💱 汇率自动</span><span class="chip">📊 可视化预览</span><span class="chip">⚡ 一键写回</span>
@@ -1232,7 +1232,7 @@ function renderNow(){
   $("verChip").textContent = "v" + (DATA.app_version || "?");
   $("h1ver").textContent = "v" + (DATA.app_version || "?");
   if($("h1time")) $("h1time").textContent = DATA.built_at ? ("· 最近更新 " + DATA.built_at) : "";
-  document.title = "哈基米投资记账 v" + (DATA.app_version || "?") + (DATA.built_at ? " · 最近更新 " + DATA.built_at : "");   // 标签页含版本与更新时间
+  document.title = "个人理财投资助手 v" + (DATA.app_version || "?") + (DATA.built_at ? " · 最近更新 " + DATA.built_at : "");   // 标签页含版本与更新时间
   $("kpiNow").innerHTML =
     kpiCard("总资产", fmtY(S.B6)) + kpiCard("总负债", fmtY(S.B7)) +
     kpiCard("净资产", fmtY(S.B8)) + kpiCard("净资产较上次变化", sign(S.B9)+fmtY(S.B9), cls(S.B9), "#e8f0fe");
